@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Shield, LayoutDashboard, Search, Gamepad2, Clock, Menu, X } from 'lucide-react';
+import { Shield, LayoutDashboard, Search, Gamepad2, Clock, Menu, X, Settings as SettingsIcon } from 'lucide-react';
 import { useState } from 'react';
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { to: '/analyzer', label: 'Analyzer', icon: Search },
   { to: '/simulation', label: 'Simulation', icon: Gamepad2 },
   { to: '/history', label: 'History', icon: Clock },
+  { to: '/settings', label: 'Settings', icon: SettingsIcon },
 ];
 
 export default function Navbar() {

@@ -1,21 +1,53 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cyber-dark: #0a0e17;
-  --color-cyber-darker: #060911;
-  --color-cyber-card: #111827;
-  --color-cyber-border: #1e293b;
+  --color-cyber-dark: var(--bg-primary);
+  --color-cyber-darker: var(--bg-secondary);
+  --color-cyber-card: var(--bg-card);
+  --color-cyber-border: var(--border-color);
   --color-cyber-accent: #00ff88;
   --color-cyber-accent-dim: #00cc6a;
   --color-cyber-warning: #fbbf24;
   --color-cyber-danger: #ef4444;
   --color-cyber-safe: #22c55e;
   --color-cyber-info: #3b82f6;
-  --color-cyber-text: #e2e8f0;
-  --color-cyber-muted: #64748b;
+  --color-cyber-text: var(--text-primary);
+  --color-cyber-muted: var(--text-muted);
   --color-cyber-glow: rgba(0, 255, 136, 0.15);
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+:root {
+  /* Default to dark mode colors */
+  --bg-primary: #0a0e17;
+  --bg-secondary: #060911;
+  --bg-card: #111827;
+  --border-color: #1e293b;
+  --text-primary: #e2e8f0;
+  --text-muted: #64748b;
+}
+
+/* Light mode overrides */
+.light {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #e2e8f0;
+  --border-color: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-muted: #475569;
+}
+
+/* System default media query */
+@media (prefers-color-scheme: light) {
+  :root:not(.dark) {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-card: #e2e8f0;
+    --border-color: #cbd5e1;
+    --text-primary: #0f172a;
+    --text-muted: #475569;
+  }
 }
 
 * {
@@ -25,9 +57,15 @@
 
 body {
   margin: 0;
-  background-color: #0a0e17;
-  color: #e2e8f0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.extension-popup {
+  width: 400px;
+  height: 600px;
+  overflow-x: hidden;
 }
 
 #root {
@@ -95,9 +133,8 @@ body {
 .stagger-5 { animation-delay: 0.5s; }
 
 .glass-card {
-  background: linear-gradient(135deg, rgba(17, 24, 39, 0.8), rgba(17, 24, 39, 0.4));
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(30, 41, 59, 0.5);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
 }
 
 .gradient-border {
@@ -118,7 +155,8 @@ body {
 
 .grid-bg {
   background-image:
-    linear-gradient(rgba(30, 41, 59, 0.3) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+    linear-gradient(var(--border-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
   background-size: 40px 40px;
+  opacity: 0.3;
 }

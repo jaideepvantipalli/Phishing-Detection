@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Analyzer from './pages/Analyzer';
 import Simulation from './pages/Simulation';
 import History from './pages/History';
+import Settings from './pages/Settings';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="/analyzer" element={<Analyzer />} />
             <Route path="/simulation" element={<Simulation />} />
             <Route path="/history" element={<History />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
 
