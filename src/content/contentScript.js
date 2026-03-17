@@ -1,5 +1,23 @@
 // Content Script - Runs in the context of the web page
-import jsQR from 'jsqr';
+// jsQR is loaded via manifest as a global
+const jsQR = window.jsQR;
+
+// Safety wrapper for chrome.runtime.sendMessage
+function safeSendMessage(message, callback) {
+  try {
+    if (chrome.runtime && chrome.runtime.id) {
+      chrome.runtime.sendMessage(message, (response) => {
+        if (chrome.runtime.lastError) {
+          // Context likely invalidated, ignore quietly
+          return;
+        }
+        if (callback) callback(response);
+      });
+    }
+  } catch (e) {
+    // Extension context likely invalidated
+  }
+}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'SHOW_WARNING') {
@@ -29,8 +47,10 @@ const docObserver = new MutationObserver((mutations) => {
   });
 });
 
-docObserver.observe(document.body, { childList: true, subtree: true });
-document.querySelectorAll('img').forEach(img => observer.observe(img));
+if (document.body) {
+  docObserver.observe(document.body, { childList: true, subtree: true });
+  document.querySelectorAll('img').forEach(img => observer.observe(img));
+}
 
 async function scanImage(img) {
   if (scannedImages.has(img.src) || !img.complete || img.naturalWidth === 0) return;
@@ -49,7 +69,7 @@ async function scanImage(img) {
     if (code && code.data) {
       const url = code.data;
       if (url.startsWith('http')) {
-        chrome.runtime.sendMessage({ action: 'ANALYZE_LINK', url }, (response) => {
+        safeSendMessage({ action: 'ANALYZE_LINK', url }, (response) => {
           if (response && response.classification === 'High Risk') {
             markMaliciousQR(img, url, response);
           }
@@ -90,7 +110,13 @@ function markMaliciousQR(img, url, data) {
   overlay.innerHTML = `⚠️ Malicious QR Detected! Click to view details.`;
   
   overlay.onclick = () => {
-    window.location.href = chrome.runtime.getURL(`verify.html?url=${encodeURIComponent(url)}`);
+    try {
+      if (chrome.runtime && chrome.runtime.id) {
+        window.location.href = chrome.runtime.getURL(`verify.html?url=${encodeURIComponent(url)}`);
+      }
+    } catch (e) {
+      // Ignore invalidated context
+    }
   };
 
   document.body.appendChild(overlay);

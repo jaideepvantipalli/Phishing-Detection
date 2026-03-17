@@ -20,7 +20,8 @@ export default defineConfig({
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash][extname]'
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        format: 'esm', // Standard for Vite
       }
     }
   }
