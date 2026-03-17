@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Trash2, ShieldCheck, Database, RefreshCw, CheckCircle2, Save } from 'lucide-react';
+import api from '../services/api';
 
 export default function Settings() {
   const [autoDeleteDays, setAutoDeleteDays] = useState(0); // 0 means disabled
@@ -37,22 +38,18 @@ export default function Settings() {
     }
   };
 
-  const clearHistory = () => {
+  const clearHistory = async () => {
     setIsClearing(true);
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.set({ phishingHistory: [] }, () => {
-        setTimeout(() => {
-          setIsClearing(false);
-          setClearSuccess(true);
-          setTimeout(() => setClearSuccess(false), 3000);
-        }, 800);
-      });
-    } else {
+    try {
+      await api.clearHistory();
       setTimeout(() => {
         setIsClearing(false);
         setClearSuccess(true);
         setTimeout(() => setClearSuccess(false), 3000);
       }, 800);
+    } catch (err) {
+      console.error('Failed to clear history:', err);
+      setIsClearing(false);
     }
   };
 
