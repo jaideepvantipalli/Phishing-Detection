@@ -9,7 +9,7 @@ const phishingKeywords = [
 
 const suspiciousDomains = ['.tk', '.ml', '.ga', '.cf', '.gq', '.buzz', '.top', '.xyz'];
 
-const legitimateDomains = [
+export const legitimateDomains = [
   'google.com', 'github.com', 'microsoft.com', 'apple.com', 'amazon.com',
   'facebook.com', 'twitter.com', 'linkedin.com', 'netflix.com', 'ups.com',
   'fedex.com', 'paypal.com', 'chase.com', 'bankofamerica.com',

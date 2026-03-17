@@ -26,6 +26,9 @@ const typeColors = {
 };
 
 function getDetailedResult(item) {
+  // If the item already has reasons (saved from a real scan), use them
+  if (item.reasons && item.reasons.length > 0) return item;
+
   const results = mockAnalysisResults[item.type];
   if (!results) return null;
 
