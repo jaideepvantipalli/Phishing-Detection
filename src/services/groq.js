@@ -92,8 +92,11 @@ export const groq = {
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
-          messages: [{ role: 'system', content: ANALYSIS_PROMPT }],
-          temperature: 0.1, // Low temperature for consistent JSON
+          messages: [
+            { role: 'system', content: ANALYSIS_PROMPT },
+            { role: 'user', content: `Analyze this content: ${content}` }
+          ],
+          temperature: 0.1,
           response_format: { type: "json_object" }
         }),
       });

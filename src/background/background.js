@@ -17,19 +17,25 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   const url = details.url;
   if (!url || url.startsWith('chrome://') || url.startsWith('chrome-extension://')) return;
 
-  chrome.storage.local.get(['isExtensionEnabled'], async (result) => {
+  chrome.storage.local.get(['isExtensionEnabled', 'bypassedUrls'], async (result) => {
     if (result.isExtensionEnabled === false) return;
+
+    // Check if URL is in bypass list
+    const bypassedUrls = result.bypassedUrls || [];
+    if (bypassedUrls.includes(url)) return;
 
     // Deep Redirect Analysis
     const finalUrl = await followRedirects(url);
     const lowerUrl = finalUrl.toLowerCase();
+    
+    // Check if finalUrl is in bypass list too
+    if (bypassedUrls.includes(finalUrl)) return;
     
     const suspiciousKeywords = ['phish', 'verify', 'secure', 'login', 'update', 'account', 'banking', 'confirm'];
     const isSuspicious = suspiciousKeywords.some(kw => lowerUrl.includes(kw));
 
     if (isSuspicious || finalUrl !== url) {
       // Redirect to the internal verification page
-      // pass both original and final for context
       const verifyUrl = chrome.runtime.getURL(`verify.html?url=${encodeURIComponent(finalUrl)}&original=${encodeURIComponent(url)}`);
       chrome.tabs.update(details.tabId, { url: verifyUrl });
     }
@@ -37,26 +43,27 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 });
 
 async function followRedirects(url, depth = 0) {
-  if (depth >= 5) return url; // Limit to 5 hops
+  if (depth >= 5) return url;
   
   try {
+    // In extension service worker with host_permissions, 
+    // we don't need no-cors and can read headers.
     const response = await fetch(url, { 
       method: 'HEAD', 
-      redirect: 'manual',
-      mode: 'no-cors' 
+      redirect: 'manual'
     });
     
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get('location');
       if (location) {
-        // Handle relative URLs
         const nextUrl = new URL(location, url).href;
         return followRedirects(nextUrl, depth + 1);
       }
     }
     return url;
   } catch (e) {
-    return url; // On error, return current
+    // Redirect chain interrupted or CORS issue on certain sites
+    return url;
   }
 }
 

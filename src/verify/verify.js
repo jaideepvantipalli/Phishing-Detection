@@ -62,9 +62,15 @@ function showDetection(data) {
     };
     
     document.getElementById('proceed-btn').onclick = () => {
-        // Use a session marker to prevent loop? 
-        // For now, let's just go. The background script logic should handle bypass.
-        window.location.href = targetUrl;
+        // Add to bypass list to prevent infinite loop
+        chrome.storage.local.get(['bypassedUrls'], (result) => {
+            const bypassedUrls = result.bypassedUrls || [];
+            if (!bypassedUrls.includes(targetUrl)) {
+                bypassedUrls.push(targetUrl);
+                chrome.storage.local.set({ bypassedUrls });
+            }
+            window.location.href = targetUrl;
+        });
     };
 }
 
