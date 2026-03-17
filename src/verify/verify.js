@@ -62,15 +62,20 @@ function showDetection(data) {
     };
     
     document.getElementById('proceed-btn').onclick = () => {
-        // Add to bypass list to prevent infinite loop
-        chrome.storage.local.get(['bypassedUrls'], (result) => {
-            const bypassedUrls = result.bypassedUrls || [];
-            if (!bypassedUrls.includes(targetUrl)) {
-                bypassedUrls.push(targetUrl);
-                chrome.storage.local.set({ bypassedUrls });
-            }
+        // Add to bypass list to prevent infinite loop when extension storage is available
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            chrome.storage.local.get(['bypassedUrls'], (result) => {
+                const bypassedUrls = result.bypassedUrls || [];
+                if (!bypassedUrls.includes(targetUrl)) {
+                    bypassedUrls.push(targetUrl);
+                    chrome.storage.local.set({ bypassedUrls });
+                }
+                window.location.href = targetUrl;
+            });
+        } else {
+            // Fallback when running outside an extension context: just redirect
             window.location.href = targetUrl;
-        });
+        }
     };
 }
 
