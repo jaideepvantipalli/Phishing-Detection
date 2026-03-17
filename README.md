@@ -1,67 +1,99 @@
-# PhishGuard AI - Modern Phishing Detection & Prevention
+# PhishGuard AI - Ultimate Browser Security Extension
 
 ![PhishGuard Banner](https://img.shields.io/badge/Security-AI--Powered-00ff88?style=for-the-badge&logo=shield)
 ![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)
-![Tailwind](https://img.shields.io/badge/Tailwind-CSS%204-06B6D4?style=for-the-badge&logo=tailwindcss)
+![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-orange?style=for-the-badge&logo=googlechrome)
+![Groq AI](https://img.shields.io/badge/AI-Groq--Llama3-A100FF?style=for-the-badge)
 
-PhishGuard AI is a production-level cybersecurity platform designed to protect users from phishing threats through advanced AI analysis and interactive training. Unlike basic detection tools, PhishGuard focuses on **Explainability**—teaching users *why* something is dangerous so they can develop deep cybersecurity intuition.
+**PhishGuard AI** is a cutting-edge browser extension designed to protect your digital life in real-time. By combining the power of **Groq-accelerated AI (Llama 3)** with advanced heuristic scanning, it provides a comprehensive shield against phishing, malicious redirects, and "Quishing" (QR Code Phishing).
 
-## 🚀 Key Features
+---
 
-- **🧠 AI-Powered Analyzer**: Real-time analysis of URLs, Emails, and SMS messages using advanced heuristic models.
-- **🔍 Explainability UI**: Detailed breakdown of threat markers with interactive tooltips and "Why This Matters" insights.
-- **🎮 Phishing Simulations**: Gamified training scenarios to help users identify real-world attack vectors.
-- **📜 Scan History**: Persistent local history of all analyzed content with detailed risk reports.
-- **⚙️ Advanced Settings**: Configure AI sensitivity, data retention, and privacy protocols.
-- **💎 Premium Dashboard**: Stunning cybersecurity-themed UI with glassmorphism, pulse animations, and grid-based layouts.
+## 🛡️ Core Security Features
+
+### 1. 🚀 Real-Time Link Protection
+Intercepts suspicious links **before** you land on the page. PhishGuard analyzes the destination URL using AI and displays a dedicated verification barrier if threats are detected.
+
+### 2. 🔄 Deep Redirect Analysis
+Attackers often hide malicious sites behind multiple redirects (like bit.ly or tinyurl). PhishGuard follows the entire chain to the final destination and performs analysis on the actual landing page.
+
+### 3. 📸 Quishing (QR Phishing) Protection
+Phishing is moving to QR codes. PhishGuard automatically scans all QR codes visible on a webpage, analyzes the encoded URLs with AI, and warns you if the QR is a "trap" without you ever needing to pick up your phone.
+
+### 4. 🧠 Groq-Powered AI Engine
+Uses the latest Llama 3 models on Groq's high-speed inference engine for near-instant analysis of URLs, emails, and suspicious text content.
+
+### 5. 💬 Security Expert Chatbot
+Have a security question? Chat with our integrated AI assistant to get expert advice on phishing trends, social engineering, and online safety.
+
+### 6. 📊 Interactive Dashboard
+A stunning, cybersecurity-themed control center to monitor your stats, view your scan history, and configure your protection sensitivity.
+
+---
 
 ## 🛠 Tech Stack
 
-- **Frontend**: React 19, Vite 8
-- **Styling**: Tailwind CSS 4 (Vanilla CSS variables)
-- **Routing**: React Router 7
-- **Icons**: Lucide React
-- **Design System**: Custom Cyber-Dark Design System with Glassmorphism
+- **Framework**: React 19 + Vite 8 (Modern ES Modules)
+- **AI Engine**: Groq API (Llama 3 Series)
+- **Scanning Libs**: `jsQR` (Client-side QR decoding)
+- **Styling**: Tailwind CSS 4 + Cyber-Dark Custom Theme
+- **extension API**: Manifest V3 (Service Workers & Content Scripts)
+
+---
 
 ## 📦 Getting Started
 
-### Prerequisites
+### 1. Prerequisites
+- Node.js (Latest LTS)
+- A **Groq API Key** (Get one at [console.groq.com](https://console.groq.com/))
 
-- Node.js (Latest LTS recommended)
-- npm or yarn
-
-### Installation
-
+### 2. Installation & Setup
 1. Clone the repository:
    ```bash
    git clone git@github.com:KomeshBathula/Phishing-Detection.git
+   cd phishing-detection-website
    ```
-
 2. Install dependencies:
    ```bash
    npm install
    ```
-
-3. Start the development server:
+3. Create a `.env` file in the root:
+   ```env
+   VITE_GROQ_API_KEY=your_groq_api_key_here
+   ```
+4. Build the extension:
    ```bash
-   npm run dev
+   npm run build
    ```
 
-## 🏗 Project Structure
+### 3. Loading in Chrome
+1. Open Chrome and go to `chrome://extensions/`.
+2. Enable **Developer mode** (top right toggle).
+3. Click **Load unpacked**.
+4. Select the `dist` folder created after the build.
+
+---
+
+## 🏗 Project Architecture
 
 ```text
-src/
- ├── components/       # Reusable UI components (Card, Button, Navbar, etc.)
- ├── data/             # Mock data and scenario definitions
- ├── pages/            # Main application pages (Dashboard, Analyzer, etc.)
- ├── utils/            # Helper functions and analysis logic
- ├── App.jsx           # Main routing and layout wrapper
- └── main.jsx          # Application entry point
+/
+├── src/
+│   ├── background/      # Service worker for navigation & redirect analysis
+│   ├── content/         # Content script for link interception & QR scanning
+│   ├── components/      # UI components (Chatbot, Dashboard Cards, etc.)
+│   ├── services/        # API (Groq), Persistence (Chrome Storage), etc.
+│   ├── pages/           # Extension views (Dashboard, Settings, Analyzer)
+│   ├── verify/          # The secure "Barrier Page" for suspicious links
+│   └── App.jsx          # Main application routing
+├── public/              # Static assets and manifest.json
+└── vite.config.js       # Specialized extension build configuration
 ```
 
-## 🛡 Security First
+---
 
-PhishGuard AI follows a **Zero-Trust** philosophy. All analysis results and history are stored locally in the browser. We do not transmit sensitive analyzed content to external servers in this demo implementation.
+## 🔒 Security & Privacy
+PhishGuard AI follows a **Zero-Server** philosophy for history. All your scan reports and stats are stored strictly within your browser's local storage (`chrome.storage`). Analysis is performed via encrypted API calls to Groq.
 
 ---
 
