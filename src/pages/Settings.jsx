@@ -42,6 +42,9 @@ export default function Settings() {
     setIsClearing(true);
     try {
       await api.clearHistory();
+      if (typeof chrome !== 'undefined' && chrome.storage) {
+        await new Promise(r => chrome.storage.local.set({ bypassedUrls: [] }, r));
+      }
       setTimeout(() => {
         setIsClearing(false);
         setClearSuccess(true);

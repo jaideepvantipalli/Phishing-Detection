@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard Verification</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        #verify-container {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Modal Styles */
+        .phishguard-modal {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            width: 440px;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(0, 255, 136, 0.1);
+            border-top-color: #00ff88;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 24px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        h1 { font-size: 22px; font-weight: 600; margin: 0 0 12px; }
+        p { color: #94a3b8; font-size: 15px; margin: 0 0 32px; line-height: 1.6; }
+
+        .target-url {
+            font-size: 12px;
+            color: #4b5563;
+            font-family: monospace;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        /* Danger State */
+        .danger { border-color: rgba(239, 68, 68, 0.4); }
+        .danger h1 { color: #ef4444; }
+        .danger .btn-red { background: #ef4444; color: white; border: none; margin-bottom: 12px; }
+        .danger .btn-red:hover { background: #dc2626; transform: scale(1.02); }
+
+        .reason-box {
+            text-align: left;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .reason-list {
+            margin: 8px 0 0 0;
+            padding: 0;
+            list-style: none;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+    </style>
+  <script type="module" crossorigin src="verify.js"></script>
+  <link rel="modulepreload" crossorigin href="assets/modulepreload-polyfill-BnkOoLKg.js">
+  <link rel="modulepreload" crossorigin href="assets/api-DVNKul0o.js">
+</head>
+<body>
+    <div id="verify-container">
+        <!-- Initial Loading State -->
+        <div id="modal" class="phishguard-modal">
+            <div id="loader-container">
+                <div class="loader"></div>
+            </div>
+            <div id="content">
+                <h1 id="title">PhishGuard is verifying this website</h1>
+                <p id="message">Please wait kindly while we ensure your safety, so that you won't navigate to any malicious websites by mistake.</p>
+                <div class="target-url" id="url-display">Checking connection...</div>
+                <button class="btn" id="cancel-btn">Stop & Stay Safe</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

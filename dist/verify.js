@@ -1,0 +1,10 @@
+import"./assets/modulepreload-polyfill-BnkOoLKg.js";import{t as e}from"./assets/api-DVNKul0o.js";var t=new URLSearchParams(window.location.search).get(`url`),n=document.getElementById(`title`),r=document.getElementById(`message`),i=document.getElementById(`url-display`),a=document.getElementById(`loader-container`),o=document.getElementById(`cancel-btn`),s=document.getElementById(`modal`);t?(i.textContent=new URL(t).hostname,c()):window.close();async function c(){try{let n=await e.analyzeURL(t);n.classification===`High Risk`?l(n):window.location.href=t}catch(e){console.error(`Analysis failed:`,e),window.location.href=t}}function l(e){s.classList.add(`danger`),a.style.display=`none`,n.textContent=`Security Alert`,r.textContent=`Potential risks detected on this site. We recommend you don't proceed.`;let i=`
+        <div class="reason-box">
+            <div style="font-weight: 600; font-size: 14px; color: white;">AI Findings:</div>
+            <ul class="reason-list">
+                ${e.reasons.map(e=>`<li style="margin-top: 4px;">• ${e.text}</li>`).join(``)}
+            </ul>
+        </div>
+        <button class="btn btn-red" id="back-btn">Return to Safety</button>
+        <button class="btn" id="proceed-btn" style="background: transparent; border: none; font-size: 12px; margin-top: 10px; text-decoration: underline;">I understand the risk, proceed anyway</button>
+    `,o=document.getElementById(`content`);o.innerHTML=i,document.getElementById(`back-btn`).onclick=()=>{window.history.back(),setTimeout(()=>window.close(),100)},document.getElementById(`proceed-btn`).onclick=()=>{chrome.storage.local.get([`bypassedUrls`],e=>{let n=e.bypassedUrls||[];n.includes(t)||(n.push(t),chrome.storage.local.set({bypassedUrls:n})),window.location.href=t})}}o.onclick=()=>{window.history.back(),setTimeout(()=>window.close(),100)};

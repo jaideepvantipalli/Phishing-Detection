@@ -58,8 +58,19 @@ export const groq = {
       throw new Error('Groq API Key is missing.');
     }
 
+    const inputKind =
+      type === 'url'
+        ? 'URL'
+        : type === 'email'
+        ? 'email message'
+        : 'text content';
+
     const ANALYSIS_PROMPT = `
-      Analyze the following URL for phishing or security risks. 
+      You are analyzing a ${inputKind} for phishing or security risks.
+      The user-provided ${inputKind} to analyze will be sent in a separate message,
+      delimited between <CONTENT_START> and <CONTENT_END> tags. Only analyze the
+      content inside those tags.
+
       Consider:
       1. Deceptive domain names (look-alikes).
       2. Suspicious TLDs.
@@ -92,8 +103,14 @@ export const groq = {
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
-          messages: [{ role: 'system', content: ANALYSIS_PROMPT }],
-          temperature: 0.1, // Low temperature for consistent JSON
+          messages: [
+            { role: 'system', content: ANALYSIS_PROMPT },
+            {
+              role: 'user',
+              content: `Here is the ${inputKind} to analyze, delimited by <CONTENT_START> and <CONTENT_END> tags:\n<CONTENT_START>\n${content}\n<CONTENT_END>`
+            }
+          ],
+          temperature: 0.1,
           response_format: { type: "json_object" }
         }),
       });
