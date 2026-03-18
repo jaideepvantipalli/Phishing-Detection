@@ -22,13 +22,16 @@ from sklearn.metrics import classification_report, accuracy_score
 # =========================================
 # 3. LOAD DATASET
 # =========================================
-# The dataset seems to be mounted at /kaggle/input/malicious-urls-dataset
-# Directly loading the CSV using pandas with the full path.
-dataset_path = "data/malicious_phish.csv" # Adjusted for local structure
+# Adjusting to absolute path for reliable execution
+import os
+script_dir = os.path.dirname(os.path.abspath(__file__))
+dataset_path = os.path.join(script_dir, "data/malicious_phish.csv")
+
+print(f"Loading dataset from: {dataset_path}")
 try:
     df = pd.read_csv(dataset_path)
 except FileNotFoundError:
-    print(f"Dataset not found at {dataset_path}. Using kagglehub to load...")
+    print(f"Dataset not found at {dataset_path}. Falling back to kagglehub...")
     df = kagglehub.load_dataset(
       KaggleDatasetAdapter.PANDAS,
       "sid321axn/malicious-urls-dataset",
@@ -43,39 +46,44 @@ print(df.head())
 # =========================================
 df = df.dropna()
 
-# Rename columns if needed (adjust if different)
+# Standardize column names
 df.columns = ['url', 'label']
 
-# Convert labels to binary
-df['label'] = df['label'].map({
-    'benign': 0,
-    'malicious': 1,
-    'phishing': 1,
-    'defacement': 1,
-    'malware': 1
-})
+# Convert labels to binary (0 = Benign, 1 = Malicious/Phishing)
+# Handling both 'benign'/'phishing' strings and potential 0/1 integers
+def encode_label(l):
+    if isinstance(l, str):
+        l = l.lower()
+        if l == 'benign' or l == '0': return 0
+        return 1
+    return 0 if l == 0 else 1
 
-df = df.dropna()
+df['label'] = df['label'].apply(encode_label)
 
 # =========================================
-# 5. FEATURE ENGINEERING (VERY IMPORTANT)
+# 5. FEATURE ENGINEERING
 # =========================================
 
 def extract_features(url):
     features = {}
+    url = str(url)
 
     features['url_length'] = len(url)
     features['num_digits'] = sum(c.isdigit() for c in url)
     features['num_special_chars'] = len(re.findall(r'[^a-zA-Z0-9]', url))
-    features['has_https'] = 1 if 'https' in url else 0
+    features['has_https'] = 1 if url.startswith('https') else 0
     features['num_subdomains'] = url.count('.')
     features['has_ip'] = 1 if re.search(r'\d+\.\d+\.\d+\.\d+', url) else 0
-    features['has_suspicious_words'] = 1 if any(word in url.lower() for word in [
-        'login', 'verify', 'secure', 'account', 'update', 'bank'
-    ]) else 0
+    
+    suspicious_words = ['login', 'verify', 'secure', 'account', 'update', 'bank', 'confirm', 'urgent', 'signin']
+    features['has_suspicious_words'] = 1 if any(word in url.lower() for word in suspicious_words) else 0
+    
+    features['num_hyphens'] = url.count('-')
+    features['num_at_symbol'] = url.count('@')
 
     return pd.Series(features)
 
+print("Extracting features...")
 features_df = df['url'].apply(extract_features)
 
 X = features_df
@@ -91,7 +99,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 # =========================================
 # 7. TRAIN MODEL
 # =========================================
-model = RandomForestClassifier(n_estimators=100, random_state=42)
+print("Training RandomForestClassifier...")
+model = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
 model.fit(X_train, y_train)
 
 # =========================================
@@ -99,15 +108,23 @@ model.fit(X_train, y_train)
 # =========================================
 y_pred = model.predict(X_test)
 
+print("\n--- Model Evaluation ---")
 print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:")
 print(classification_report(y_test, y_pred))
 
 # =========================================
-# 9. SAVE MODEL
+# 9. SAVE ARTIFACTS
 # =========================================
-joblib.dump(model, "models/phishing_model.pkl")
+models_dir = os.path.join(script_dir, "models")
+os.makedirs(models_dir, exist_ok=True)
 
-# Save feature columns (IMPORTANT for backend)
-joblib.dump(X.columns.tolist(), "models/feature_columns.pkl")
+model_path = os.path.join(models_dir, "phishing_model.pkl")
+cols_path = os.path.join(models_dir, "feature_columns.pkl")
 
-print("Model and features saved successfully!")
+joblib.dump(model, model_path)
+joblib.dump(X.columns.tolist(), cols_path)
+
+print(f"\nModel saved to: {model_path}")
+print(f"Features saved to: {cols_path}")
+print("Training complete!")

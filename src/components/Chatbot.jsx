@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Bot, User, Shield, AlertCircle } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, User, Shield, AlertCircle, Trash2 } from 'lucide-react';
 import groq from '../services/groq';
 import Button from './Button';
 
@@ -12,6 +12,12 @@ export default function Chatbot() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const scrollRef = useRef(null);
+
+  const clearHistory = () => {
+    setMessages([
+      { role: 'assistant', content: 'History cleared. How can I help you now?' }
+    ]);
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -54,12 +60,21 @@ export default function Chatbot() {
                 <p className="text-[10px] text-cyber-accent font-medium">Security Expert</p>
               </div>
             </div>
-            <button 
-              onClick={() => setIsOpen(false)}
-              className="p-2 text-cyber-muted hover:text-white transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={clearHistory}
+                title="Clear Chat History"
+                className="p-2 text-cyber-muted hover:text-cyber-danger transition-colors"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="p-2 text-cyber-muted hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}

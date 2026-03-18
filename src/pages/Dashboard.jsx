@@ -203,6 +203,38 @@ export default function Dashboard() {
               delay={4}
             />
           </div>
+
+          <h2 className="text-lg font-semibold text-white flex items-center gap-2 mt-8">
+            <AlertTriangle className="w-5 h-5 text-cyber-danger" />
+            Top Threats Prevented
+          </h2>
+          <Card className="mt-4 border-cyber-danger/20 bg-cyber-danger/5">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-cyber-text">Homograph Attacks</span>
+                <span className="text-cyber-danger font-mono font-bold">142</span>
+              </div>
+              <div className="h-1 bg-cyber-darker rounded-full overflow-hidden">
+                <div className="h-full bg-cyber-danger w-[75%]" />
+              </div>
+              
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-cyber-text">Credential Harvesters</span>
+                <span className="text-cyber-danger font-mono font-bold">89</span>
+              </div>
+              <div className="h-1 bg-cyber-darker rounded-full overflow-hidden">
+                <div className="h-full bg-cyber-danger w-[55%]" />
+              </div>
+
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-cyber-text">Malicious QR Codes</span>
+                <span className="text-cyber-danger font-mono font-bold">34</span>
+              </div>
+              <div className="h-1 bg-cyber-darker rounded-full overflow-hidden">
+                <div className="h-full bg-cyber-danger w-[30%]" />
+              </div>
+            </div>
+          </Card>
         </div>
 
         {/* Recent Activity */}

@@ -15,57 +15,127 @@ export const legitimateDomains = [
   'fedex.com', 'paypal.com', 'chase.com', 'bankofamerica.com',
 ];
 
-function getRandomResult(type) {
-  const results = mockAnalysisResults[type];
-  if (!results) return null;
-  const keys = Object.keys(results);
-  const randomKey = keys[Math.floor(Math.random() * keys.length)];
-  return results[randomKey];
+const suspiciousWords = [
+  'login', 'verify', 'confirm', 'account', 'bank', 'secure', 'update',
+  'billing', 'payment', 'signin', 'support', 'service', 'limited',
+];
+
+const suspiciousTLDs = ['.tk', '.ml', '.ga', '.cf', '.gq', '.buzz', '.top', '.xyz', '.site', '.info'];
+
+/**
+ * Checks for homograph attacks (e.g., paypa1 instead of paypal)
+ */
+function checkHomograph(input, brand) {
+  const substitutions = { '0': 'o', '1': 'l', 'v': 'u', 'vv': 'w', 'rn': 'm' };
+  let normalized = input.toLowerCase();
+  for (const [key, val] of Object.entries(substitutions)) {
+    normalized = normalized.replace(new RegExp(key, 'g'), val);
+  }
+  return normalized.includes(brand) && !input.toLowerCase().includes(brand);
 }
 
 function analyzeInput(input, type) {
   const lowerInput = input.toLowerCase();
+  const result = {
+    riskScore: 0,
+    classification: 'Low Risk',
+    input,
+    type,
+    timestamp: new Date().toISOString(),
+    reasons: [],
+  };
 
   if (type === 'url') {
+    // 1. Whitelist Check
     for (const domain of legitimateDomains) {
       if (lowerInput.includes(domain)) {
-        return { ...mockAnalysisResults.url.low, input, timestamp: new Date().toISOString() };
+        result.riskScore = 5;
+        result.reasons.push({ text: `Verified legitimate domain: ${domain}`, severity: 'safe' });
+        return result;
       }
     }
-    for (const ext of suspiciousDomains) {
-      if (lowerInput.includes(ext)) {
-        return { ...mockAnalysisResults.url.high, input, timestamp: new Date().toISOString() };
+
+    // 2. Protocol Check
+    if (lowerInput.startsWith('http://')) {
+      result.riskScore += 25;
+      result.reasons.push({ text: 'Uses insecure HTTP protocol (no encryption)', severity: 'high', keyword: 'http' });
+    }
+
+    // 3. TLD Check
+    for (const tld of suspiciousTLDs) {
+      if (lowerInput.endsWith(tld) || lowerInput.includes(`${tld}/`)) {
+        result.riskScore += 30;
+        result.reasons.push({ text: `Uses suspicious TLD (${tld}) commonly associated with phishing`, severity: 'high', keyword: tld });
+        break;
       }
     }
-    const keywordCount = phishingKeywords.filter(kw => lowerInput.includes(kw)).length;
-    if (keywordCount >= 2 || lowerInput.includes('http://')) {
-      return { ...mockAnalysisResults.url.high, input, timestamp: new Date().toISOString() };
+
+    // 4. Homograph/Lookalike Check
+    const majorBrands = ['paypal', 'google', 'amazon', 'microsoft', 'apple', 'netflix', 'chase', 'bankofamerica'];
+    for (const brand of majorBrands) {
+      if (checkHomograph(lowerInput, brand)) {
+        result.riskScore += 45;
+        result.reasons.push({ text: `Detected potential homograph attack mimicking ${brand}`, severity: 'critical', keyword: brand });
+        break;
+      }
     }
-    return { ...mockAnalysisResults.url.medium, input, timestamp: new Date().toISOString() };
+
+    // 5. Keyword Check in Path/Subdomain
+    const foundKeywords = suspiciousWords.filter(word => lowerInput.includes(word));
+    if (foundKeywords.length > 0) {
+      result.riskScore += 15 * Math.min(foundKeywords.length, 3);
+      result.reasons.push({ text: `Sensitive keywords detected: ${foundKeywords.join(', ')}`, severity: 'medium', keyword: foundKeywords[0] });
+    }
+
+    // 6. Structural Check
+    if (lowerInput.split('.').length > 4) {
+      result.riskScore += 20;
+      result.reasons.push({ text: 'High number of subdomains detected (common in obfuscation)', severity: 'medium' });
+    }
+
+    if (/\d+\.\d+\.\d+\.\d+/.test(lowerInput)) {
+      result.riskScore += 40;
+      result.reasons.push({ text: 'Direct IP address access (highly suspicious)', severity: 'critical' });
+    }
+  } else {
+    // Email/Text Heuristics
+    const foundKeywords = suspiciousWords.filter(word => lowerInput.includes(word));
+    const urgencyWords = ['urgent', 'immediately', 'suspended', 'locked', 'action required', '24 hours'];
+    const foundUrgency = urgencyWords.filter(word => lowerInput.includes(word));
+
+    if (foundKeywords.length > 0) {
+      result.riskScore += 20 * Math.min(foundKeywords.length, 3);
+      result.reasons.push({ text: `Sensitive topics found: ${foundKeywords.join(', ')}`, severity: 'medium' });
+    }
+    if (foundUrgency.length > 0) {
+      result.riskScore += 30;
+      result.reasons.push({ text: `Urgency tactics detected: ${foundUrgency.join(', ')}`, severity: 'high' });
+    }
+    if (lowerInput.includes('http://')) {
+      result.riskScore += 20;
+      result.reasons.push({ text: 'Contains insecure links', severity: 'medium' });
+    }
   }
 
-  if (type === 'email') {
-    const keywordCount = phishingKeywords.filter(kw => lowerInput.includes(kw)).length;
-    if (keywordCount >= 3) {
-      return { ...mockAnalysisResults.email.high, input, timestamp: new Date().toISOString() };
-    }
-    return { ...mockAnalysisResults.email.low, input, timestamp: new Date().toISOString() };
+  // Final Classification
+  result.riskScore = Math.min(result.riskScore, 100);
+  if (result.riskScore > 70) result.classification = 'High Risk';
+  else if (result.riskScore > 30) result.classification = 'Medium Risk';
+  else result.classification = 'Low Risk';
+
+  // If no reasons, add a fallback
+  if (result.reasons.length === 0) {
+    result.riskScore = 15;
+    result.reasons.push({ text: 'No immediate threats detected by local heuristics', severity: 'safe' });
   }
 
-  if (type === 'text') {
-    const keywordCount = phishingKeywords.filter(kw => lowerInput.includes(kw)).length;
-    if (keywordCount >= 2) {
-      return { ...mockAnalysisResults.text.high, input, timestamp: new Date().toISOString() };
-    }
-    return { ...mockAnalysisResults.text.low, input, timestamp: new Date().toISOString() };
-  }
-
-  return getRandomResult(type);
+  return result;
 }
 
 export function performAnalysis(input, type) {
   return new Promise((resolve) => {
-    const delay = 1500 + Math.random() * 1500;
+    // Artificial delay to simulate processing
+    const delay = 1000 + Math.random() * 1000;
     setTimeout(() => {
       const result = analyzeInput(input, type);
       resolve(result);
