@@ -1,0 +1,5 @@
+url,label
+http://example.com/login,phishing
+https://google.com,benign
+http://secure-bank-update.tk,phishing
+https://github.com,benign

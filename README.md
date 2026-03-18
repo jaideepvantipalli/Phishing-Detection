@@ -77,17 +77,12 @@ A stunning, cybersecurity-themed control center to monitor your stats, view your
 ## 🏗 Project Architecture
 
 ```text
-/
-├── src/
-│   ├── background/      # Service worker for navigation & redirect analysis
-│   ├── content/         # Content script for link interception & QR scanning
-│   ├── components/      # UI components (Chatbot, Dashboard Cards, etc.)
-│   ├── services/        # API (Groq), Persistence (Chrome Storage), etc.
-│   ├── pages/           # Extension views (Dashboard, Settings, Analyzer)
-│   ├── verify/          # The secure "Barrier Page" for suspicious links
-│   └── App.jsx          # Main application routing
-├── public/              # Static assets and manifest.json
-└── vite.config.js       # Specialized extension build configuration
+├── ml/                  # Machine Learning Research & Training
+│   ├── train.py         # Model training script (Random Forest)
+│   ├── requirements.txt # Python dependencies for ML
+│   ├── data/            # training dataset (malicious_phish.csv)
+│   └── models/          # Saved model (phishing_model.pkl)
+├── src/                 # Extension source code
 ```
 
 ---
