@@ -6,7 +6,6 @@ import Analyzer from './pages/Analyzer';
 import Simulation from './pages/Simulation';
 import History from './pages/History';
 import Settings from './pages/Settings';
-import Chatbot from './components/Chatbot';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -42,8 +41,6 @@ export default function App() {
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
-
-        <Chatbot />
 
         <footer className="py-8 border-t border-cyber-border mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
